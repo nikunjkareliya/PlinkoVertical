@@ -19,8 +19,11 @@ public static class GameEvents
 
     // Ball
     public static readonly GameEvent OnBallSpawn = new GameEvent();
+    public static readonly GameEvent<Vector3> OnBallSpawnAtPos = new GameEvent<Vector3>();
 
-    public static readonly GameEvent<int> OnScoreUpdated = new GameEvent<int>();
-    public static readonly GameEvent<int> OnScoreAdded = new GameEvent<int>();
-    public static readonly GameEvent<int> OnScoreMultiplied = new GameEvent<int>();
+    public static readonly GameEvent<int> OnScoreUpdated = new GameEvent<int>();    
+
+    // Camera
+    public static readonly GameEvent<Transform> OnCameraTargetAdd = new GameEvent<Transform>();
+    public static readonly GameEvent<Transform> OnCameraTargetRemove = new GameEvent<Transform>();
 }

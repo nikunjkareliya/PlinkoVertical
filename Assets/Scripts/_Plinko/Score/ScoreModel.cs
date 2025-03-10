@@ -4,17 +4,13 @@ using UnityEngine;
 
 public class ScoreModel
 {
-    private int _currentScore;
-    public int pegValue;
-
+    private int _score;
+    public int Score => _score;
+    
     public void SetScore(int score)
     {
-        _currentScore = score;
+        _score = score;
         GameEvents.OnScoreUpdated.Execute(score);
     }
 
-    public int GetScore()
-    {
-        return _currentScore;
-    }
 }

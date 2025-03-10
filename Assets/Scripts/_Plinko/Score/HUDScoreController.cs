@@ -14,30 +14,14 @@ public class HUDScoreController : MonoBehaviour
     {
         _scoreModel = GetGameModel();
         GameEvents.OnScoreUpdated.Register(HandleScoreUpdated);
-        GameEvents.OnScoreAdded.Register(HandleScoreChanged);
-        GameEvents.OnScoreMultiplied.Register(HandleScoreMultiplied);
-
+        
         _scoreModel.SetScore(0);
 
     }
 
     private void OnDestroy()
     {
-        GameEvents.OnScoreUpdated.Unregister(HandleScoreUpdated);
-        GameEvents.OnScoreAdded.Unregister(HandleScoreChanged);
-        GameEvents.OnScoreMultiplied.Unregister(HandleScoreMultiplied);
-    }
-
-    private void HandleScoreMultiplied(int multiplier)
-    {
-        var currScore = _scoreModel.GetScore();
-        _scoreModel.SetScore(currScore * multiplier);
-    }
-
-    private void HandleScoreChanged(int scoreToBeAdded)
-    {
-        var currScore =_scoreModel.GetScore();
-        _scoreModel.SetScore(currScore + scoreToBeAdded);
+        GameEvents.OnScoreUpdated.Unregister(HandleScoreUpdated);        
     }
 
     private void HandleScoreUpdated(int score)

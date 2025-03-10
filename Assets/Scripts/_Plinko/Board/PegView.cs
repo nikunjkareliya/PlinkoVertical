@@ -6,6 +6,6 @@ public class PegView : MonoBehaviour
 {
     public void Interact()
     {
-        GameEvents.OnScoreAdded.Execute(10);
+        
     }
 }
