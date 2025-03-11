@@ -5,17 +5,18 @@ using UnityEngine;
 
 public class BallController : MonoBehaviour
 {
-    [SerializeField] private BallView _ballViewPrefab;
-    [SerializeField] private Transform _spawnPoint;    
-    [SerializeField] private Transform _container;
+    [SerializeField] private BallFactory _ballFactory;
+
+    //[SerializeField] private BallView _ballViewPrefab;
+    //[SerializeField] private Transform _spawnPoint;    
+    //[SerializeField] private Transform _container;
 
     [SerializeField] private List<BallView> _spawnedBalls;
 
     private void Awake()
     {
         GameEvents.OnBallSpawn.Register(HandleBallSpawn);
-        GameEvents.OnBallSpawnAtPos.Register(HandleBallSpawnAtPos);
-        
+        GameEvents.OnBallSpawnAtPos.Register(HandleBallSpawnAtPos);        
     }
 
     private void OnDestroy()
@@ -35,20 +36,25 @@ public class BallController : MonoBehaviour
     }
 
     private void CreateBall()
-    {
-        BallView ball = Instantiate(_ballViewPrefab, _spawnPoint.position, Quaternion.identity, _container.transform);
-        GameEvents.OnCameraTargetAdd.Execute(ball.transform);
-
+    {        
+        BallView ball = _ballFactory.CreateBall();
         ball.Init();
+                
         _spawnedBalls.Add(ball);
+        
+        // Adding spawned ball to camera target list
+        GameEvents.OnCameraTargetAdd.Execute(ball.transform);
     }
 
     private void CreateBall(Vector3 spawnPos)
     {
-        BallView ball = Instantiate(_ballViewPrefab, spawnPos, Quaternion.identity, _container.transform);
-        GameEvents.OnCameraTargetAdd.Execute(ball.transform);
-
+        BallView ball = _ballFactory.CreateBall();
         ball.Init();
+
+        ball.SetPosition(spawnPos);        
         _spawnedBalls.Add(ball);
+
+        // Adding spawned ball to camera target list
+        GameEvents.OnCameraTargetAdd.Execute(ball.transform);
     }
 }

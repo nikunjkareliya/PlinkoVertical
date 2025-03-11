@@ -21,6 +21,11 @@ public class BallView : MonoBehaviour
         _rb.AddForce(new Vector2(randomForce, 0));
     }
 
+    public void SetPosition(Vector3 pos)
+    {
+        transform.position = pos;
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         var peg = other.GetComponent<IPeg>();
