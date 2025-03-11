@@ -5,11 +5,9 @@ using UnityEngine;
 
 public class BallController : MonoBehaviour
 {
-    [SerializeField] private BallFactory _ballFactory;
-
-    //[SerializeField] private BallView _ballViewPrefab;
-    //[SerializeField] private Transform _spawnPoint;    
-    //[SerializeField] private Transform _container;
+    [SerializeField] private BallFactory _ballFactory;    
+    [SerializeField] private Transform _spawnPoint;    
+    [SerializeField] private Transform _container;
 
     [SerializeField] private List<BallView> _spawnedBalls;
 
@@ -26,8 +24,8 @@ public class BallController : MonoBehaviour
     }
     
     private void HandleBallSpawn()
-    {
-        CreateBall();
+    {        
+        CreateBall(_spawnPoint.position);
     }
 
     private void HandleBallSpawnAtPos(Vector3 spawnPos)
@@ -35,23 +33,12 @@ public class BallController : MonoBehaviour
         CreateBall(spawnPos);
     }
 
-    private void CreateBall()
-    {        
-        BallView ball = _ballFactory.CreateBall();
-        ball.Init();
-                
-        _spawnedBalls.Add(ball);
-        
-        // Adding spawned ball to camera target list
-        GameEvents.OnCameraTargetAdd.Execute(ball.transform);
-    }
-
     private void CreateBall(Vector3 spawnPos)
     {
         BallView ball = _ballFactory.CreateBall();
-        ball.Init();
-
-        ball.SetPosition(spawnPos);        
+        ball.transform.SetParent(_container);
+        ball.Init(spawnPos);
+        
         _spawnedBalls.Add(ball);
 
         // Adding spawned ball to camera target list

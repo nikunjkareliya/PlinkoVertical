@@ -9,8 +9,10 @@ public class BallView : MonoBehaviour
     [SerializeField] private float _initialForce = 20f;
     [SerializeField] private float _minimumForce = 15f;
    
-    public void Init()
+    public void Init(Vector3 pos)
     {
+        SetPosition(pos);
+
         float randomForce = Random.Range(_minimumForce, _initialForce);
         // Randomly make it positive or negative
         if (Random.value < 0.5f)
@@ -21,7 +23,7 @@ public class BallView : MonoBehaviour
         _rb.AddForce(new Vector2(randomForce, 0));
     }
 
-    public void SetPosition(Vector3 pos)
+    private void SetPosition(Vector3 pos)
     {
         transform.position = pos;
     }
