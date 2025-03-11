@@ -1,142 +1,91 @@
-using DG.Tweening;
-using Shared.Core;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
+using System;
 
-namespace BallRun3D
-{    
+namespace PlinkoVertical
+{
     public class CameraController : MonoBehaviour
     {
-        [SerializeField] private Transform target;
-        
-        [SerializeField] private float _distanceOffset = 8f;
-        [SerializeField] private float _heightOffset = 3f;
-        
-        private float _smoothSpeed = 2f;                
-        [SerializeField] private float _cameraSpeed = 2f;                
-        public float rotationSpeed = 1f;
+        [SerializeField] private float _minSize = 5f;
+        [SerializeField] private float _maxSize = 15f;
+        [SerializeField] private float _padding = 2f;
+        [SerializeField] private float _smoothSpeed = 5f; // Controls how quickly camera follows targets
+        [SerializeField] private float _verticalOffset = 2f; // How much to shift the camera up from the center
 
-        private Vector3 desiredPosition;
-                
-        [SerializeField] private Transform _cameraFocusPoint;
-                
-        [SerializeField] private float _maxRotationAngle = 5f; // Maximum angle in degrees for X and Y axes
-        [SerializeField] private float _rotationDuration = 2f;
-        [SerializeField] private float _introRotationSpeed = 0.2f; // Speed for random rotation in intro state
-        private Quaternion _originalRotation = Quaternion.Euler(21, -8, 0);
+        private Camera _cam;
+        [SerializeField] private List<Transform> _targets = new List<Transform>();
+        private float _initialXPosition; // Store the initial X position
 
-        private GameStateModel _gameStateModel;
-
-        private void Awake()
+        void Awake()
         {
-            _gameStateModel = GetGameStateModel();
-
-            GameEvents.OnGameInitialized.Register(HandleGameInitialized);
-            SharedEvents.OnGameStateChanged.Register(HandleGameStateChanged);
+            _cam = GetComponent<Camera>();
+            _initialXPosition = transform.position.x; // Store the initial X position
+            GameEvents.OnCameraTargetAdd.Register(HandleCameraTargetAdd);
+            GameEvents.OnCameraTargetRemove.Register(HandleCameraTargetRemove);
         }
 
         private void OnDestroy()
         {
-            SharedEvents.OnGameStateChanged.Unregister(HandleGameStateChanged);
-            GameEvents.OnGameInitialized.Unregister(HandleGameInitialized);
+            GameEvents.OnCameraTargetAdd.Unregister(HandleCameraTargetAdd);
+            GameEvents.OnCameraTargetRemove.Unregister(HandleCameraTargetRemove);
         }
 
-        private void HandleGameInitialized()
+        private void HandleCameraTargetAdd(Transform target)
         {
-            _smoothSpeed = 500;
-            Invoke(nameof(ResetSmoothSpeed), 0.5f);
+            _targets.Add(target);
         }
 
-        void ResetSmoothSpeed()
+        private void HandleCameraTargetRemove(Transform target)
         {
-            _smoothSpeed = _cameraSpeed;
+            _targets.Remove(target);
         }
 
-        private void HandleGameStateChanged(GameState state)
+        void LateUpdate()
         {
-            //Debug.Log($"HandleGameStateChanged -> new state -> {state}");
-
-            if (state == GameState.CharacterSelect)
-            {
-                _distanceOffset = 3f;
-                _heightOffset = 1f;
-                _smoothSpeed = 4f;
-            }
-            else if (state == GameState.Home || state == GameState.Gameplay)
-            {
-                _distanceOffset = 8f;
-                _heightOffset = 3f;
-                _smoothSpeed = _cameraSpeed;
-            }
-        }
-
-        private void LateUpdate()
-        {
-            if (target == null)
-            {
-                Debug.LogWarning("CameraFollow: Target not assigned.");
+            if (_targets.Count == 0)
                 return;
-            }
 
-            //if (_gameStateModel.CurrentState == GameState.Home)
-            //{
-            //    //ApplyIntroRotation();
-            //    desiredPosition = target.position - (target.forward * distanceOffset) + (Vector3.up * heightOffset);
-            //    transform.position = desiredPosition; //Vector3.Lerp(transform.position, desiredPosition, 500 * Time.deltaTime);
-            //    transform.LookAt(target.position);
-            //}
-            //else if (_gameStateModel.CurrentState == GameState.Gameplay)            
-            if (_gameStateModel.CurrentState == GameState.Gameplay 
-                || _gameStateModel.CurrentState == GameState.Home
-                || _gameStateModel.CurrentState == GameState.CharacterSelect)
-            {
-                // Step 1: Calculate the desired position of the camera based on the target's rotation and position
-                desiredPosition = target.position - (target.forward * _distanceOffset) + (Vector3.up * _heightOffset);
-                //desiredPosition = target.position - target.forward;
+            // Get the vertical center point and required size
+            Vector3 centerPoint = GetCenterPoint();
+            Vector2 requiredSize = GetRequiredSize();
 
-                // Step 2: Smoothly interpolate from the current camera position to the desired position for smooth motion
-                transform.position = Vector3.Lerp(transform.position, desiredPosition, _smoothSpeed * Time.deltaTime);
+            // Create target position with original X value and apply vertical offset
+            Vector3 targetPosition = new Vector3(_initialXPosition, centerPoint.y + _verticalOffset, transform.position.z);
 
-                transform.LookAt(target.position);
+            // Smoothly move camera position (only Y changes)
+            transform.position = Vector3.Lerp(transform.position, targetPosition, _smoothSpeed * Time.deltaTime);
 
-                // Step 3: Calculate the target rotation for the camera to look at the target with height offset
-                //targetRotation = Quaternion.LookRotation((target.position + Vector3.up * heightOffset) - transform.position);
-
-                //// Step 4: Smoothly rotate the camera using Slerp
-                //transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-
-
-                //// Step 3: Make the camera look at the target to keep it centered
-                //transform.LookAt(target.position + Vector3.up * heightOffset);
-                ////transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(target.position + Vector3.up * heightOffset), rotationSpeed * Time.deltaTime);
-                ///
-            }            
+            // Smoothly adjust camera size
+            float targetSize = Mathf.Clamp(requiredSize.y / 2 + _padding, _minSize, _maxSize);
+            _cam.orthographicSize = Mathf.Lerp(_cam.orthographicSize, targetSize, _smoothSpeed * Time.deltaTime);
         }
 
-        private void ApplyIntroRotation()
-        {            
-            float xRotation = Mathf.Sin(Time.time * _introRotationSpeed) * 2f; 
-            float yRotation = Mathf.Cos(Time.time * _introRotationSpeed) * 2f;
-
-            Quaternion introRotation = Quaternion.Euler(_originalRotation.eulerAngles.x + xRotation,
-                                                        _originalRotation.eulerAngles.y + yRotation,
-                                                        _originalRotation.eulerAngles.z);
-            
-            transform.rotation = Quaternion.Slerp(transform.rotation, introRotation, Time.deltaTime * _smoothSpeed);
-        }
-
-        private GameStateModel GetGameStateModel()
+        Vector3 GetCenterPoint()
         {
-            GameStateModel gameStateModel = ModelStore.Get<GameStateModel>();
+            if (_targets.Count == 1)
+                return _targets[0].position;
 
-            if (gameStateModel == null)
+            var bounds = new Bounds(_targets[0].position, Vector3.zero);
+            foreach (var target in _targets)
             {
-                gameStateModel = new GameStateModel();
-                ModelStore.Register<GameStateModel>(gameStateModel);
+                bounds.Encapsulate(target.position);
             }
 
-            return gameStateModel;
+            return bounds.center;
+        }
+
+        Vector2 GetRequiredSize()
+        {
+            if (_targets.Count == 1)
+                return new Vector2(_minSize * 2, _minSize * 2);
+
+            var bounds = new Bounds(_targets[0].position, Vector3.zero);
+            foreach (var target in _targets)
+            {
+                bounds.Encapsulate(target.position);
+            }
+
+            return new Vector2(bounds.size.x, bounds.size.y);
         }
     }
 
