@@ -26,8 +26,8 @@ namespace PlinkoVertical
         {
             for (int i = 0; i < ballsCount; i++)
             {
-                yield return new WaitForSeconds(0.1f);
-                GameEvents.OnBallSpawnAtPos.Execute(this.transform.position + Vector3.down * _offset);
+                yield return new WaitForSeconds(0.1f);                
+                GameEvents.RaiseBallSpawnAtPos(this.transform.position + Vector3.down * _offset);
             }
 
             yield return new WaitForSeconds(1f);

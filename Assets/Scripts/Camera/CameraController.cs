@@ -20,14 +20,15 @@ namespace PlinkoVertical
         {
             _cam = GetComponent<Camera>();
             _initialXPosition = transform.position.x; // Store the initial X position
-            GameEvents.OnCameraTargetAdd.Register(HandleCameraTargetAdd);
-            GameEvents.OnCameraTargetRemove.Register(HandleCameraTargetRemove);
+                                                      // 
+            GameEvents.OnCameraTargetAdd += HandleCameraTargetAdd;
+            GameEvents.OnCameraTargetRemove += HandleCameraTargetRemove;
         }
 
         private void OnDestroy()
-        {
-            GameEvents.OnCameraTargetAdd.Unregister(HandleCameraTargetAdd);
-            GameEvents.OnCameraTargetRemove.Unregister(HandleCameraTargetRemove);
+        {            
+            GameEvents.OnCameraTargetAdd -= HandleCameraTargetAdd;
+            GameEvents.OnCameraTargetRemove -= HandleCameraTargetRemove;
         }
 
         private void HandleCameraTargetAdd(Transform target)

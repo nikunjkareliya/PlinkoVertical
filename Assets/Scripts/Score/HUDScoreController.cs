@@ -9,21 +9,20 @@ namespace PlinkoVertical
     public class HUDScoreController : MonoBehaviour
     {
         [SerializeField] private HUDScoreView _viewObject;
-
-        private ScoreModel _scoreModel;
+        
+        private int _score;
+        public int Score => _score;
 
         private void Awake()
-        {
-            _scoreModel = GetGameModel();
-            GameEvents.OnScoreUpdated.Register(HandleScoreUpdated);
+        {                      
+            GameEvents.OnScoreUpdated += HandleScoreUpdated;
 
-            _scoreModel.SetScore(0);
-
+            _viewObject.SetScore(0);
         }
 
         private void OnDestroy()
-        {
-            GameEvents.OnScoreUpdated.Unregister(HandleScoreUpdated);
+        {            
+            GameEvents.OnScoreUpdated -= HandleScoreUpdated;
         }
 
         private void HandleScoreUpdated(int score)
@@ -31,17 +30,6 @@ namespace PlinkoVertical
             _viewObject.SetScore(score);
         }
 
-        private ScoreModel GetGameModel()
-        {
-            ScoreModel scoreModel = ModelStore.Get<ScoreModel>();
 
-            if (scoreModel == null)
-            {
-                scoreModel = new ScoreModel();
-                ModelStore.Register<ScoreModel>(scoreModel);
-            }
-
-            return scoreModel;
-        }
     }
 }

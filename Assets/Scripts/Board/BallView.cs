@@ -55,8 +55,8 @@ namespace PlinkoVertical
             var destroyable = other.collider.GetComponent<IDestroyable>();
 
             if (destroyable != null)
-            {
-                GameEvents.OnCameraTargetRemove.Execute(this.transform);
+            {                
+                GameEvents.RaiseCameraTargetRemove(this.transform);
 
                 _rb.isKinematic = true;
 

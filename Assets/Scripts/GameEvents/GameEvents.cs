@@ -1,32 +1,41 @@
-using Shared.Core;
 using UnityEngine;
+using System;
 
 namespace PlinkoVertical
 {
     public static class GameEvents
     {
-        // GameState
-        public static readonly GameEvent OnGameInitialized = new GameEvent();
-
-        public static readonly GameEvent<int> OnLevelLoad = new GameEvent<int>();
-        public static readonly GameEvent<int> OnLevelCompleted = new GameEvent<int>();
-
-        public static readonly GameEvent OnLevelFailed = new GameEvent();
-
-        public static readonly GameEvent<int> OnLevelCoinsUpdated = new GameEvent<int>();
-        public static readonly GameEvent<int> OnTotalCoinsUpdated = new GameEvent<int>();
-
-        // Lines
-        public static readonly GameEvent<int> OnLinesCountChanged = new GameEvent<int>();
-
         // Ball
-        public static readonly GameEvent OnBallSpawn = new GameEvent();
-        public static readonly GameEvent<Vector3> OnBallSpawnAtPos = new GameEvent<Vector3>();
+        public static event Action OnBallSpawn;
+        public static event Action<Vector3> OnBallSpawnAtPos;
+        public static event Action<int> OnScoreUpdated;
 
-        public static readonly GameEvent<int> OnScoreUpdated = new GameEvent<int>();
+        public static event Action<Transform> OnCameraTargetAdd;
+        public static event Action<Transform> OnCameraTargetRemove;
 
-        // Camera
-        public static readonly GameEvent<Transform> OnCameraTargetAdd = new GameEvent<Transform>();
-        public static readonly GameEvent<Transform> OnCameraTargetRemove = new GameEvent<Transform>();
+        public static void RaiseBallSpawn()
+        {
+            OnBallSpawn?.Invoke();
+        }
+
+        public static void RaiseBallSpawnAtPos(Vector3 pos)
+        {
+            OnBallSpawnAtPos?.Invoke(pos);
+        }
+
+        public static void RaiseScoreUpdated(int score)
+        {
+            OnScoreUpdated?.Invoke(score);
+        }
+
+        public static void RaiseCameraTargetAdd(Transform target)
+        {
+            OnCameraTargetAdd?.Invoke(target);
+        }
+
+        public static void RaiseCameraTargetRemove(Transform target)
+        {
+            OnCameraTargetRemove?.Invoke(target);
+        }
     }
 }

@@ -14,15 +14,15 @@ namespace PlinkoVertical
         [SerializeField] private List<BallView> _spawnedBalls;
 
         private void Awake()
-        {
-            GameEvents.OnBallSpawn.Register(HandleBallSpawn);
-            GameEvents.OnBallSpawnAtPos.Register(HandleBallSpawnAtPos);
+        {            
+            GameEvents.OnBallSpawn += HandleBallSpawn;
+            GameEvents.OnBallSpawnAtPos += HandleBallSpawnAtPos;
         }
 
         private void OnDestroy()
         {
-            GameEvents.OnBallSpawn.Unregister(HandleBallSpawn);
-            GameEvents.OnBallSpawnAtPos.Unregister(HandleBallSpawnAtPos);
+            GameEvents.OnBallSpawn -= HandleBallSpawn;
+            GameEvents.OnBallSpawnAtPos -= HandleBallSpawnAtPos;
         }
 
         private void HandleBallSpawn()
@@ -43,8 +43,8 @@ namespace PlinkoVertical
 
             _spawnedBalls.Add(ball);
 
-            // Adding spawned ball to camera target list
-            GameEvents.OnCameraTargetAdd.Execute(ball.transform);
+            // Adding spawned ball to camera target list            
+            GameEvents.RaiseCameraTargetAdd(ball.transform);
         }
     }
 }

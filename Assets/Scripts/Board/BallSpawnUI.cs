@@ -8,7 +8,7 @@ namespace PlinkoVertical
     {
         public void BallSpawn()
         {
-            GameEvents.OnBallSpawn.Execute();
+            GameEvents.RaiseBallSpawn();
         }
     }
 }
